@@ -49,7 +49,6 @@ function M.setup(opts)
 					{ " 💬 ", "Comment" },
 				},
 			})
-
 			vim.notify(
 				start_pos[1] .. "  " .. start_pos[2] .. "  " .. start_pos[3] .. "  " .. start_pos[3] .. " " .. input,
 				0,
