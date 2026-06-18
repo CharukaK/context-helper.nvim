@@ -1,0 +1,23 @@
+*context-helper.txt*        context-helper.nvim
+
+==============================================================================
+INTRODUCTION                                        *context-helper*
+
+context-helper.nvim is a Neovim plugin.
+
+==============================================================================
+SETUP                                               *context-helper-setup*
+
+Call setup() with an optional options table: >lua
+
+    require("context-helper").setup({
+        -- options here
+    })
+<
+
+==============================================================================
+LICENSE                                             *context-helper-license*
+
+MIT
+
+vim:tw=78:ts=8:ft=help:norl:
