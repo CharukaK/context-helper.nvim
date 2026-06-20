@@ -1,4 +1,4 @@
-# context-helper.nvim
+# [WIP] context-helper.nvim
 
 A Neovim plugin.
 
