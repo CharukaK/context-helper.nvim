@@ -1,14 +1,28 @@
 local M = {}
 
+---@class ContextHelperConfig
+-- Add configuration fields here as the plugin grows
+
+---@class AnnotationMetadata
+---@field buf_id integer Buffer handle the annotation belongs to
+---@field file string Absolute path of the annotated file
+---@field mark_id integer Extmark ID returned by nvim_buf_set_extmark
+---@field comment string User-provided annotation text
+
+---@type ContextHelperConfig
 M.config = {
   -- default configuration options
 }
 
+---@type AnnotationMetadata[]
 local annotations = {}
+
+---@type integer
 local ns = vim.api.nvim_create_namespace("context-helper")
 
 ---Setup function to initialize the plugin
----@param opts table|nil Optional configuration overrides
+---@param opts ContextHelperConfig|nil Optional configuration overrides
+---@return nil
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", M.config, opts or {})
 
@@ -17,14 +31,14 @@ function M.setup(opts)
   vim.api.nvim_create_user_command("ResetAnnotations", M.reset, {})
 end
 
+---Start a new annotation session, clearing all existing annotations
+---@return nil
 function M.new_session()
-  for _, value in ipairs(annotations) do
-    print(value.buf_id, ns, value.mark_id)
-    vim.api.nvim_buf_del_extmark(value.buf_id, ns, value.mark_id)
-  end
-  annotations = {}
+  M.reset()
 end
 
+---Delete all extmarks and clear the annotations list
+---@return nil
 function M.reset()
   for _, value in ipairs(annotations) do
     print(value.buf_id, ns, value.mark_id)
@@ -33,7 +47,11 @@ function M.reset()
   annotations = {}
 end
 
+---Prompt the user for a comment and attach it as a virtual-text extmark
+---over the current visual selection
+---@return nil
 function M.prompt_for_comment()
+  ---@type {[1]: integer[], [2]: integer[]}[]
   local positions = vim.fn.getregionpos(vim.fn.getpos("v"), vim.fn.getpos("."))
 
   vim.ui.input({
@@ -51,6 +69,7 @@ function M.prompt_for_comment()
       end_col = positions[#positions][2][3] - 1,
     })
 
+    ---@type AnnotationMetadata
     local metadata = {
       buf_id = vim.api.nvim_get_current_buf(),
       file = vim.api.nvim_buf_get_name(0),
@@ -59,12 +78,6 @@ function M.prompt_for_comment()
     }
 
     table.insert(annotations, metadata)
-
-    -- vim.notify(
-    --   start_pos[1] .. "  " .. start_pos[2] .. "  " .. start_pos[3] .. "  " .. start_pos[3] .. " " .. input,
-    --   0,
-    --   {}
-    -- )
   end)
 end
 
