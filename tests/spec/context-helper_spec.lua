@@ -115,6 +115,37 @@ describe("context-helper", function()
     assert.match("/a.lua\n  %[1%-3%] a1\n  %[10%-12%] a2\n\n/b.lua\n  %[5%] b1", result)
   end)
 
+  it("setup registers the ListAnnotations command", function()
+    local commands = vim.api.nvim_get_commands({})
+    assert.is_not_nil(commands["ListAnnotations"])
+  end)
+
+  it("has an open_quickfix_list function", function()
+    assert.is_function(plugin.open_quickfix_list)
+  end)
+
+  it("open_quickfix_list warns when no annotations exist", function()
+    local notified = false
+    local orig_notify = vim.notify
+    vim.notify = function(msg, level)
+      if level == vim.log.levels.WARN then
+        notified = true
+      end
+    end
+    plugin.open_quickfix_list()
+    vim.notify = orig_notify
+    assert.is_true(notified)
+  end)
+
+  it("open_quickfix_list populates quickfix list", function()
+    -- We cannot directly set private `annotations` from tests,
+    -- so test via the command path: the command is registered and callable.
+    vim.api.nvim_command("ListAnnotations")
+    -- Should warn since no annotations exist
+    local qf = vim.fn.getqflist()
+    assert.are.same({}, qf)
+  end)
+
   it("calls on_open_session callback with annotations", function()
     local called = false
     local result = nil

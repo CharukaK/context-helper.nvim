@@ -16,6 +16,22 @@ Call setup() with an optional options table: >lua
 <
 
 ==============================================================================
+COMMANDS                                            *context-helper-commands*
+
+:AddAnnotation          Prompt for a comment and attach it to the visual
+                        selection.
+
+:ListAnnotations        Populate the quickfix list with all annotations and
+                        open the quickfix window.
+
+:NewAnnotationSession   Clear all annotations and start a fresh session.
+
+:OpenSession            Fire the on_open_session callback with the current
+                        annotation list.
+
+:ResetAnnotations       Delete all annotation extmarks and clear the list.
+
+==============================================================================
 LICENSE                                             *context-helper-license*
 
 MIT

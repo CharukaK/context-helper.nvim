@@ -34,6 +34,7 @@ function M.setup(opts)
   vim.api.nvim_create_user_command("NewAnnotationSession", M.new_session, {})
   vim.api.nvim_create_user_command("AddAnnotation", M.prompt_for_comment, {})
   vim.api.nvim_create_user_command("ResetAnnotations", M.reset, {})
+  vim.api.nvim_create_user_command("ListAnnotations", M.open_quickfix_list, {})
   vim.api.nvim_create_user_command("OpenSession", function()
     if #annotations == 0 then
       vim.notify("No annotations to open", vim.log.levels.WARN)
@@ -129,6 +130,29 @@ function M.reset()
     vim.api.nvim_buf_del_extmark(value.buf_id, ns, value.mark_id)
   end
   annotations = {}
+end
+
+---Populate the quickfix list with all annotations and open the quickfix window
+---@return nil
+function M.open_quickfix_list()
+  local anns = M.get_annotations()
+  if #anns == 0 then
+    vim.notify("No annotations to list", vim.log.levels.WARN)
+    return
+  end
+
+  local qf_entries = {}
+  for _, ann in ipairs(anns) do
+    table.insert(qf_entries, {
+      filename = ann.file,
+      lnum = ann.start_row or 1,
+      col = ann.start_col or 1,
+      text = ann.comment,
+    })
+  end
+
+  vim.fn.setqflist(qf_entries, "r")
+  vim.cmd("copen")
 end
 
 ---Prompt the user for a comment and attach it as a virtual-text extmark
