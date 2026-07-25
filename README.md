@@ -1,6 +1,11 @@
 # [WIP] context-helper.nvim
 
-A Neovim plugin.
+A Neovim plugin for annotating locations in your code with short comments,
+then exporting those annotations as context for AI tools and prompts.
+
+## Requirements
+
+- Neovim 0.10+ (uses `vim.fn.getregionpos()`)
 
 ## Installation
 
@@ -8,7 +13,19 @@ A Neovim plugin.
 
 ```lua
 {
-  "your-username/context-helper.nvim",
+  "CharukaK/context-helper.nvim",
+  cmd = {
+    "AddAnnotation",
+    "AnnotateLine",
+    "AnnotateFile",
+    "ListAnnotations",
+    "ShowAnnotations",
+    "ExportAnnotations",
+    "CopyAnnotations",
+    "ResetAnnotations",
+    "NewAnnotationSession",
+    "OpenSession",
+  },
   config = function()
     require("context-helper").setup({
       -- your options
@@ -21,7 +38,7 @@ A Neovim plugin.
 
 ```lua
 use {
-  "your-username/context-helper.nvim",
+  "CharukaK/context-helper.nvim",
   config = function()
     require("context-helper").setup({})
   end,
@@ -42,6 +59,10 @@ require("context-helper").setup({
   ui = {
     overview = { width = 80, height = 15, border = "rounded" },
   },
+  -- called by :OpenSession with the current annotation list (see below)
+  on_open_session = function(annotations)
+    -- e.g. hand `annotations` off to another tool or workflow
+  end,
 })
 ```
 
@@ -52,11 +73,11 @@ require("context-helper").setup({
 - `:AnnotateFile` — prompt for a comment and attach it to the entire current file.
 - `:ListAnnotations` — populate the quickfix list with all annotations.
 - `:ShowAnnotations` — open a read-only floating window listing all annotations (`q`/`<Esc>` to close).
-- `:ExportAnnotations [target] [path]` — export to `clipboard`, `file [path]`, a format name, or the configured default.
+- `:ExportAnnotations [target] [path]` — export to `clipboard`, `file [path]`, a format name, or the configured default. `file` with no `path` writes a timestamped file (`annotations-YYYYMMDD-HHMMSS.md`) in the current directory.
 - `:CopyAnnotations` — shorthand for `:ExportAnnotations clipboard`.
 - `:ResetAnnotations` — clear all annotations after confirmation; `:ResetAnnotations!` skips the prompt.
 - `:NewAnnotationSession` — clear all annotations instantly, no prompt.
-- `:OpenSession` — invoke the `on_open_session` callback with the current annotations.
+- `:OpenSession` — invoke the `on_open_session` callback with the current annotations. Warns and does nothing if there are no annotations yet, or if no `on_open_session` callback is configured.
 
 Annotations live in memory for the current session only — there is no persistence to disk.
 

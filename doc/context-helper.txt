@@ -3,7 +3,14 @@
 ==============================================================================
 INTRODUCTION                                        *context-helper*
 
-context-helper.nvim is a Neovim plugin.
+context-helper.nvim lets you annotate locations in your code with short
+comments, then export those annotations as context for AI tools and
+prompts.
+
+==============================================================================
+REQUIREMENTS                                   *context-helper-requirements*
+
+Neovim 0.10+ (uses |vim.fn.getregionpos()|).
 
 ==============================================================================
 SETUP                                               *context-helper-setup*
@@ -39,8 +46,10 @@ COMMANDS                                            *context-helper-commands*
                           - (omitted)   use |context-helper-config| export
                                         defaults
                           - clipboard   copy to the unnamed/system register
-                          - file [path] write to `path`, or a timestamped
-                                        file if `path` is omitted
+                          - file [path] write to `path`, or to a timestamped
+                                        file (annotations-YYYYMMDD-HHMMSS.md)
+                                        in the current directory if `path`
+                                        is omitted
                           - a format name ("markdown", "text", "json") to
                                         print the formatted output
                         An explicit `file` target only writes the file; it
@@ -53,7 +62,9 @@ COMMANDS                                            *context-helper-commands*
                         `:ResetAnnotations!`.
 
 :OpenSession            Fire the on_open_session callback with the current
-                        annotation list.
+                        annotation list. Warns and does nothing if there
+                        are no annotations yet, or if no on_open_session
+                        callback is configured.
 
 :ResetAnnotations       Prompt for confirmation, then delete all annotation
                         extmarks and clear the list. Use `:ResetAnnotations!`
@@ -77,11 +88,18 @@ Call setup() with an optional options table: >lua
           border = "rounded",
         },
       },
+      -- called by :OpenSession with the current annotation list
+      on_open_session = function(annotations)
+        -- e.g. hand `annotations` off to another tool or workflow
+      end,
     })
 <
 `export.clipboard_on_export` only applies to a bare `:ExportAnnotations`
 call with no arguments; an explicit `clipboard` or `file` target always
 does exactly what was asked and nothing else.
+
+`on_open_session` defaults to nil and is invoked by |:OpenSession| with the
+full list of annotations (see |context-helper-commands|).
 
 Annotations are kept in memory for the current Neovim session only; there
 is no persistence to disk.
