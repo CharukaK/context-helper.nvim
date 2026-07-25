@@ -21,15 +21,70 @@ COMMANDS                                            *context-helper-commands*
 :AddAnnotation          Prompt for a comment and attach it to the visual
                         selection.
 
+:AnnotateLine           Prompt for a comment and attach it to the current
+                        line, without requiring a visual selection.
+
+:AnnotateFile           Prompt for a comment and attach it to the entire
+                        current file.
+
 :ListAnnotations        Populate the quickfix list with all annotations and
                         open the quickfix window.
 
-:NewAnnotationSession   Clear all annotations and start a fresh session.
+:ShowAnnotations        Open a read-only floating window listing all
+                        annotations, grouped by file. Press `q` or <Esc> to
+                        close it.
+
+:ExportAnnotations [target] [path]
+                        Export all annotations. `target` is one of:
+                          - (omitted)   use |context-helper-config| export
+                                        defaults
+                          - clipboard   copy to the unnamed/system register
+                          - file [path] write to `path`, or a timestamped
+                                        file if `path` is omitted
+                          - a format name ("markdown", "text", "json") to
+                                        print the formatted output
+                        An explicit `file` target only writes the file; it
+                        never also copies to the clipboard.
+
+:CopyAnnotations        Shorthand for `:ExportAnnotations clipboard`.
+
+:NewAnnotationSession   Instantly clear all annotations and start a fresh
+                        session, without prompting. Equivalent to
+                        `:ResetAnnotations!`.
 
 :OpenSession            Fire the on_open_session callback with the current
                         annotation list.
 
-:ResetAnnotations       Delete all annotation extmarks and clear the list.
+:ResetAnnotations       Prompt for confirmation, then delete all annotation
+                        extmarks and clear the list. Use `:ResetAnnotations!`
+                        (with a bang) to skip the confirmation prompt.
+
+==============================================================================
+CONFIGURATION                                         *context-helper-config*
+
+Call setup() with an optional options table: >lua
+
+    require("context-helper").setup({
+      export = {
+        default_format = "markdown", -- "markdown" | "text" | "json"
+        clipboard_on_export = true,  -- also copy to clipboard on a bare
+                                      -- :ExportAnnotations call
+      },
+      ui = {
+        overview = {
+          width = 80,      -- max width of the :ShowAnnotations window
+          height = 15,      -- max height of the :ShowAnnotations window
+          border = "rounded",
+        },
+      },
+    })
+<
+`export.clipboard_on_export` only applies to a bare `:ExportAnnotations`
+call with no arguments; an explicit `clipboard` or `file` target always
+does exactly what was asked and nothing else.
+
+Annotations are kept in memory for the current Neovim session only; there
+is no persistence to disk.
 
 ==============================================================================
 LICENSE                                             *context-helper-license*

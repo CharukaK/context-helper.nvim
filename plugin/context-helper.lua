@@ -3,5 +3,5 @@ if vim.g.loaded_context_helper then
 end
 vim.g.loaded_context_helper = true
 
--- Plugin entry point. Calls setup with no args so users who don't call
--- require("context-helper").setup() still get defaults.
+-- Plugin entry point. Deliberately does NOT call setup() here so users
+-- control config timing; call require("context-helper").setup() yourself.
